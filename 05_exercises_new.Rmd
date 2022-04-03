@@ -12,7 +12,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
 ```
 
 ```{r libraries}
@@ -116,8 +116,8 @@ small_trains %>%
   ggplot(aes(x = year, y = total_late_arrivals)) +
   geom_point() +
   transition_time(year) +
-  labs(title = "Total Late Arrivals Each Year between 2015 and 2018", y = "") +
-  anim_save("anim1.gif")
+  labs(title = "Total Late Arrivals Each Year between 2015 and 2018", y = "")
+anim_save("anim1.gif")
 knitr::include_graphics("anim1.gif")
 ```
 
@@ -146,9 +146,9 @@ garden_harvest %>%
   geom_area() +
   labs(y = "Cumulative Harvest from July-October", legend = "Variety") +
   guides(fill=guide_legend(title="Variety")) +
-  transition_reveal(date) +
-  anim_save("anim1.gif")
-knitr::include_graphics("anim1.gif")
+  transition_reveal(date)
+  anim_save("anim2.gif")
+knitr::include_graphics("anim2.gif")
   
 ```
 
@@ -178,9 +178,9 @@ ggmap(the_map) +
   geom_point(fill = "red", size = 1)+ #Not sure why this isn't working :(
   theme_map() +
   labs(title = "Mallorca Bike Ride Path", subtitle = "Time: {frame_along}" ) +
-  transition_reveal(time) +
-  anim_save("anim1.gif")
-knitr::include_graphics("anim1.gif")
+  transition_reveal(time)
+  anim_save("anim3.gif")
+knitr::include_graphics("anim3.gif")
   
 ```
   
@@ -198,12 +198,12 @@ ggmap(the_map) +
              aes(x = lon, y = lat, colour = ele),
              alpha = .3,
              size = 2) +
-  geom_point(fill = "red", size = 1)+
+  geom_point(fill = "red", size = 1)+ #Same thing
   theme_map() +
   labs(title = "Triathalon Race Log Visualized", subtitle = "Time: {frame_along}" ) +
-  transition_reveal(hrminsec) +
-  anim_save("anim1.gif")
-knitr::include_graphics("anim1.gif")
+  transition_reveal(hrminsec)
+  anim_save("anim4.gif")
+knitr::include_graphics("anim4.gif")
 #merged_data %>%
   
 ```
@@ -242,24 +242,25 @@ states_map <- map_data("state")
   expand_limits(x = states_map$long, y = states_map$lat) +
   labs(title = "Covid US", subtitle = "Time: {frame_along}") +
   transition_reveal(date) +
-  theme_map() +
-  anim_save("anim1.gif")
-knitr::include_graphics("anim1.gif")
+  theme_map()
   
   animate(covid_states_plot, nframes = 200, end_pause = 10)
+  anim_save("anim5.gif")
+knitr::include_graphics("anim5.gif")
 ```
-It looks like the initial outbreak in 2020 isn't as signifigant as the second spike at the end of 2020 which appears by the much higher numbers evident by the brighter blue colors. A flaw in this graph is that it only takes into account cumulative cases which means that we don't get an active case count at different times to show more accurately how the covid numbers are changing month by month. Also it looks as though it only changes signifigantly once in this graph on 11-15-20 which doesn't seem right.
+It looks like the initial outbreak in 2020 isn't as significant as the second spike at the end of 2020 which appears by the much higher numbers evident by the brighter blue colors. A flaw in this graph is that it only takes into account cumulative cases which means that we don't get an active case count at different times to show more accurately how the covid numbers are changing month by month. Also it looks as though it only changes signifigantly once in this graph on 11-15-20 which doesn't seem right.
 
 
 ## Your first `shiny` app (for next week!)
 
   7. This app will also use the COVID data. Make sure you load that data and all the libraries you need in the `app.R` file you create. You should create a new project for the app, separate from the homework project. Below, you will post a link to the app that you publish on shinyapps.io. You will create an app to compare states' daily number of COVID cases per 100,000 over time. The x-axis will be date. You will have an input box where the user can choose which states to compare (`selectInput()`), a slider where the user can choose the date range, and a submit button to click once the user has chosen all states they're interested in comparing. The graph should display a different line for each state, with labels either on the graph or in a legend. Color can be used if needed. 
   
-Put the link to your app here: 
+Put the link to your app here: https://thayes-8.shinyapps.io/Exercise5/
   
 ## GitHub link
 
   8. Below, provide a link to your GitHub repo with this set of Weekly Exercises. 
-
+ 
+ https://github.com/thayes8/Exercise-5
 
 **DID YOU REMEMBER TO UNCOMMENT THE OPTIONS AT THE TOP?**
