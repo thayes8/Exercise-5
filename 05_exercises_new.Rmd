@@ -1,6 +1,6 @@
 ---
 title: 'Weekly Exercises #5'
-author: "Your name here"
+author: "Tommy Hayes"
 output: 
   html_document:
     keep_md: TRUE
@@ -82,10 +82,44 @@ Once your repository is created, you should always open your **project** rather 
 ## Warm-up exercises from tutorial
 
   1. Choose 2 graphs you have created for ANY assignment in this class and add interactivity using the `ggplotly()` function.
+```{r}
+freedom <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-02-22/freedom.csv')
+ freedom_plot <- freedom %>%
+  filter(country %in% "Russian Federation" 
+         | country %in% "Afghanistan") %>%
+  pivot_longer(CL:PR, names_to = "score_name", values_to = "score") %>%
+   ggplot(aes(x = year, y = score, color = country)) +
+   geom_line() +
+   geom_point() +
+   facet_wrap(vars(score_name)) +
+     labs(caption = "Plot by Tommy Hayes, data from freedom", title = "Civil Liberties and Political Rights in Afghanistan and Russia")
+  ggplotly(freedom_plot)
+```
+```{r}
+data_site <- 
+  "https://www.macalester.edu/~dshuman1/data/112/2014-Q4-Trips-History-Data.rds" 
+Trips <- readRDS(gzcon(url(data_site)))
+New_Trips <- Trips %>%
+  mutate(time = hour(sdate) + (1/60) * minute(sdate)) %>%
+  ggplot(aes(x = time)) +
+  geom_density()
+  ggplotly(New_Trips)
+```
   
 
   
   2. Use animation to tell an interesting story with the `small_trains` dataset that contains data from the SNCF (National Society of French Railways). These are Tidy Tuesday data! Read more about it [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-02-26).
+```{r}
+small_trains %>%
+  group_by(year) %>%
+  summarise(total_late_arrivals = sum(num_late_at_departure)) %>%
+  ggplot(aes(x = year, y = total_late_arrivals)) +
+  geom_point() +
+  transition_time(year) +
+  labs(title = "Total Late Arrivals Each Year between 2015 and 2018", y = "") +
+  anim_save("anim1.gif")
+knitr::include_graphics("anim1.gif")
+```
 
 
 ## Garden data
@@ -104,7 +138,17 @@ garden_harvest %>%
   ungroup() %>% 
   complete(variety, 
            date, 
-           fill = list(daily_harvest_lb = 0))
+           fill = list(daily_harvest_lb = 0)) %>%
+  group_by(variety) %>%
+  mutate(cum_sum = cumsum(daily_harvest_lb)) %>%
+  mutate(total_sum = sum(daily_harvest_lb)) %>%
+  ggplot(aes(x = date, y = cum_sum, fill = fct_reorder(variety, total_sum))) +
+  geom_area() +
+  labs(y = "Cumulative Harvest from July-October", legend = "Variety") +
+  guides(fill=guide_legend(title="Variety")) +
+  transition_reveal(date) +
+  anim_save("anim1.gif")
+knitr::include_graphics("anim1.gif")
   
 ```
 
@@ -120,11 +164,48 @@ garden_harvest %>%
   * Show the time in the subtitle.  
   * CHALLENGE: use the `ggimage` package and `geom_image` to add a bike image instead of a red point. You can use [this](https://raw.githubusercontent.com/llendway/animation_and_interactivity/master/bike.png) image. See [here](https://goodekat.github.io/presentations/2019-isugg-gganimate-spooky/slides.html#35) for an example. 
   * Add something of your own! And comment on if you prefer this to the static map and why or why not.
+```{r}
+the_map <- get_stamenmap(
+  bbox = c(left = 2, right =4, top =40, bottom =38.7),
+  maptype = "watercolor",
+  zoom = 9
+)
+ggmap(the_map) +
+  geom_path(data = mallorca_bike_day7,
+             aes(x = lon, y = lat, colour = ele),
+             alpha = .3,
+             size = 2) +
+  geom_point(fill = "red", size = 1)+ #Not sure why this isn't working :(
+  theme_map() +
+  labs(title = "Mallorca Bike Ride Path", subtitle = "Time: {frame_along}" ) +
+  transition_reveal(time) +
+  anim_save("anim1.gif")
+knitr::include_graphics("anim1.gif")
+  
+```
   
   5. In this exercise, you get to meet Lisa's sister, Heather! She is a proud Mac grad, currently works as a Data Scientist where she uses R everyday, and for a few years (while still holding a full-time job) she was a pro triathlete. You are going to map one of her races. The data from each discipline of the Ironman 70.3 Pan Am championships, Panama is in a separate file - `panama_swim`, `panama_bike`, and `panama_run`. Create a similar map to the one you created with my cycling data. You will need to make some small changes: 1. combine the files putting them in swim, bike, run order (HINT: `bind_rows()`), 2. make the leading dot a different color depending on the event (for an extra challenge, make it a different image using `geom_image()!), 3. CHALLENGE (optional): color by speed, which you will need to compute on your own from the data. You can read Heather's race report [here](https://heatherlendway.com/2016/02/10/ironman-70-3-pan-american-championships-panama-race-report/). She is also in the Macalester Athletics [Hall of Fame](https://athletics.macalester.edu/honors/hall-of-fame/heather-lendway/184) and still has records at the pool. 
   
 ```{r}
-
+merged_data <- bind_rows(panama_swim, panama_bike, panama_run)
+the_map <- get_stamenmap(
+  bbox = c(left = -79.9, right =-79.1, top =9.1, bottom =8.8),
+  maptype = "terrain",
+  zoom = 9
+)
+ggmap(the_map) +
+  geom_path(data = merged_data,
+             aes(x = lon, y = lat, colour = ele),
+             alpha = .3,
+             size = 2) +
+  geom_point(fill = "red", size = 1)+
+  theme_map() +
+  labs(title = "Triathalon Race Log Visualized", subtitle = "Time: {frame_along}" ) +
+  transition_reveal(hrminsec) +
+  anim_save("anim1.gif")
+knitr::include_graphics("anim1.gif")
+#merged_data %>%
+  
 ```
   
 ## COVID-19 data
@@ -144,7 +225,31 @@ census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_ce
   mutate(state = str_to_lower(state))
 
 states_map <- map_data("state")
+
+  covid_and_census <- census_pop_est_2018 %>%
+  mutate(state = str_to_title(state)) %>%
+  right_join(covid19, by = c("state")) %>%
+  filter(day(date) == 15) %>%
+  mutate(cases_per_10000 = cases/(est_pop_2018/10000)) %>%
+  mutate(state = tolower(state))
+  
+  covid_states_plot <- covid_and_census %>%
+  ggplot() +
+  geom_map(map = states_map,
+           aes(map_id = state,
+               fill = cases_per_10000,
+               group = date)) +
+  expand_limits(x = states_map$long, y = states_map$lat) +
+  labs(title = "Covid US", subtitle = "Time: {frame_along}") +
+  transition_reveal(date) +
+  theme_map() +
+  anim_save("anim1.gif")
+knitr::include_graphics("anim1.gif")
+  
+  animate(covid_states_plot, nframes = 200, end_pause = 10)
 ```
+It looks like the initial outbreak in 2020 isn't as signifigant as the second spike at the end of 2020 which appears by the much higher numbers evident by the brighter blue colors. A flaw in this graph is that it only takes into account cumulative cases which means that we don't get an active case count at different times to show more accurately how the covid numbers are changing month by month. Also it looks as though it only changes signifigantly once in this graph on 11-15-20 which doesn't seem right.
+
 
 ## Your first `shiny` app (for next week!)
 
